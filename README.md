@@ -1,6 +1,7 @@
 # SlackKaggleBot
 This is a Slack Bot that integrates Kaggle APIs to notify users of updates to any kernels or datasets they choose to follow
-Note: Currently working on integrating comments/discussions, deployment. Shoulde be pushed soon. Stay tuned!
+
+Note: Currently working on integrating comments/discussions, deployment. Should be pushed soon. Stay tuned!
 
 Functionality
 -----------
