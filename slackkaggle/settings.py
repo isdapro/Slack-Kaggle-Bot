@@ -72,7 +72,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'slackkaggle.wsgi.application'
 
 BROKER_URL = config('CLOUDAMQP_URL')
-BROKER_POOL_LIMIT = 3
+CELERY_BROKER_URL = config('CLOUDAMQP_URL')
+BROKER_POOL_LIMIT = 1
 BROKER_CONNECTION_MAX_RETRIES = None
 
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
