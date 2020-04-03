@@ -11,6 +11,8 @@ from .models import Users
 from kaggle import api
 from urllib.parse import urlparse
 from .tasks import send_direct_response
+from .tasks import initial_scrape
+from django.utils import timezone
 # Create your views here.
 
 Client = WebClient(config('SLACK_BOT_USER_TOKEN'))
@@ -46,15 +48,10 @@ def post(request,*args,**kwargs):
                                 text = "<@{}> Are you sure the link is correct?".format(user))
                 return HttpResponse(status=200)
 
-            new_dataset,created = Datasets.objects.get_or_create(dat_url = msg.split()[1],
-            defaults = {'dat_name':dataobj['title'],'last_updated':dataobj['lastUpdated'],'disc_count':dataobj['topicCount'],
-            'kernel_count':dataobj['kernelCount']})
-
-            new_user, created_user = Users.objects.get_or_create(user_id = user)
-            new_dataset.users.add(new_user)
-            new_dataset.save()
-
             send_direct_response.delay(channel,bot_success_text)
+            initial_scrape.delay(0,msg,dataobj,user)
+
+
             return HttpResponse(status=200)
         elif 'kernelmonitor' in msg.lower():
             try:
@@ -65,13 +62,9 @@ def post(request,*args,**kwargs):
                                 text = "<@{}> Are you sure the link is correct?".format(user))
                 return HttpResponse(status=200)
 
-            new_krnl,created = Kernels.objects.get_or_create(kernel_url = msg.split()[1],
-            defaults = {'kernel_name': krnlobj.title,'last_run': krnlobj.lastRunTime})
-
-            new_user, created_user = Users.objects.get_or_create(user_id = user)
-            new_krnl.users.add(new_user)
-            new_krnl.save()
             send_direct_response.delay(channel,bot_success_text)
+            initial_scrape.delay(1,msg,krnlobj,user)
+
             return HttpResponse(status=200)
 
         else:
