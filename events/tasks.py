@@ -24,10 +24,10 @@ from django.utils import timezone
 import dateutil.parser as dparser
 
 chrome_options = Options()
-chrome_options.binary_location = GOOGLE_CHROME_BIN
+chrome_options.binary_location = config('GOOGLE_CHROME_BIN')
 chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--no-sandbox')
-driver = webdriver.Chrome(executable_path='CHROMEDRIVER_PATH', chrome_options = chrome_options)
+driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
 driver.implicitly_wait(10)
 find_class = driver.find_element_by_class_name
 find_xpath = driver.find_element_by_xpath
