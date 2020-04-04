@@ -29,8 +29,10 @@ chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--headless')
 chrome_options.add_argument('--disable-dev-shm-usage')
 
+
 driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
-driver.implicitly_wait(10)
+driver.implicitly_wait(30)
+driver.set_page_load_timeout(30)
 find_class = driver.find_element_by_class_name
 find_xpath = driver.find_element_by_xpath
 logger = get_task_logger(__name__)
@@ -126,7 +128,7 @@ def task_check():
             entry.last_run = updated_obj.lastRunTime
         scrape_val = simple_scrapper("comment-list__title-count",entry.kernel_url)
         if scrape_val!=-1 and scrape_val!=entry.comment_count:
-            mess += ("The kernel " + "*"+str(entry.kernel_name)+"*" + " has "+(scrape_val-entry.comment_count)+"new comments recently check it out! \n")
+            mess += ("The kernel " + "*"+str(entry.kernel_name)+"*" + " has "+str(scrape_val-entry.comment_count)+" new comments recently check it out! \n")
             entry.comment_count = scrape_val
         if (mess):
             for use in entry.users.all():
