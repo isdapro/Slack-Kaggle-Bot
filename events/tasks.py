@@ -167,3 +167,5 @@ def initial_scrape(state,msg,created_obj,user):
         new_user, created_user = Users.objects.get_or_create(user_id = user)
         new_krnl.users.add(new_user)
         new_krnl.save()
+
+driver.quit()
