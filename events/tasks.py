@@ -168,4 +168,4 @@ def initial_scrape(state,msg,created_obj,user):
         new_krnl.users.add(new_user)
         new_krnl.save()
 
-driver.quit()
+driver.close()
