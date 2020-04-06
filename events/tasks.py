@@ -30,11 +30,6 @@ chrome_options.add_argument('--headless')
 chrome_options.add_argument('--disable-dev-shm-usage')
 
 
-driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
-driver.implicitly_wait(30)
-driver.set_page_load_timeout(30)
-find_class = driver.find_element_by_class_name
-find_xpath = driver.find_element_by_xpath
 logger = get_task_logger(__name__)
 
 Client = WebClient(config('SLACK_BOT_USER_TOKEN'))
@@ -43,22 +38,41 @@ chan_id = config('CHANNEL_ID')
 @sleep_and_retry
 @limits(calls=1,period=5)
 def simple_scrapper(classname,urlname):
+    driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
+    driver.implicitly_wait(30)
+    driver.set_page_load_timeout(30)
+    find_class = driver.find_element_by_class_name
+    find_xpath = driver.find_element_by_xpath
+
     try:
         driver.get(urlname)
-        return int(find_class(classname).text.lstrip('(').rstrip(')'))
+        rval = int(find_class(classname).text.lstrip('(').rstrip(')'))
+        driver.quit()
+        return rval
     except Exception as e:
         print(e)
+        driver.quit()
         return -1
+
 
 @sleep_and_retry
 @limits(calls=1,period=5)
 def span_scrapper(nodeaddress,urlname):
+    driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
+    driver.implicitly_wait(30)
+    driver.set_page_load_timeout(30)
+    find_class = driver.find_element_by_class_name
+    find_xpath = driver.find_element_by_xpath
+
     try:
         print(urlname)
         driver.get(urlname)
-        return dparser.parse(find_xpath(nodeaddress).get_attribute("title").replace('GMT',''),fuzzy=True)
+        rval = dparser.parse(find_xpath(nodeaddress).get_attribute("title").replace('GMT',''),fuzzy=True)
+        driver.quit()
+        return rval
     except Exception as e:
         print (e)
+        driver.quit()
         return -1
 
 @sleep_and_retry
@@ -167,5 +181,3 @@ def initial_scrape(state,msg,created_obj,user):
         new_user, created_user = Users.objects.get_or_create(user_id = user)
         new_krnl.users.add(new_user)
         new_krnl.save()
-
-driver.close()
