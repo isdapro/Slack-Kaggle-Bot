@@ -268,11 +268,16 @@ def deletion_util(state,msg,user):
         if not deluobj.basicdatasets_set.all().filter(dat_url = check_url).exists():
             datobj = deluobj.datasets_set.all().get(dat_url = check_url)
             datobj.users.remove(deluobj)
+            if not datobj.users.exists():
+                Datasets.objects.get(dat_url = check_url).delete()
         else:
             datobj = deluobj.basicdatasets_set.all().get(dat_url = check_url)
             datobj.users.remove(deluobj)
-        print(datobj)
+            if not datobj.users.exists():
+                BasicDatasets.objects.get(dat_url = check_url).delete()
 
     else:
         kernobj = Kernels.objects.get(kernel_url = check_url)
         kernobj.users.remove(deluobj)
+        if not kernobj.users.exists():
+            Kernels.objects.get(kernel_url = check_url).delete()
