@@ -19,6 +19,15 @@ class Datasets(models.Model):
     def __str__(self):
         return self.dat_name
 
+class BasicDatasets(models.Model):
+    users = models.ManyToManyField(Users)
+    dat_name = models.TextField()
+    dat_url = models.CharField(max_length = 500, unique = True)
+    last_updated = models.DateTimeField()
+
+    def __str__(self):
+        return self.dat_name
+
 class Kernels(models.Model):
     users = models.ManyToManyField(Users)
     kernel_name = models.TextField()
