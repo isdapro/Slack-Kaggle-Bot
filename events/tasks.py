@@ -208,8 +208,8 @@ def send_list_response(c, userobject):
     if len(userobject.kernels_set.all())==0:
         b.append(SectionTemplate("No items"))
     for item in userobject.kernels_set.all():
-        name = item.dat_name
-        url = item.dat_url
+        name = item.kernel_name
+        url = item.kernel_url
         b.append(SectionTemplate(name))
         b.append(ContextTemplate(url))
 
