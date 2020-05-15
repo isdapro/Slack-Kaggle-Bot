@@ -65,11 +65,11 @@ def stopmonitor(channel,msg,user):
 def data_confirm(channel,msg,user):
     try:
         cache_m = Confirmation.objects.filter(username = user).values_list('mess', flat=True)[0]
-        searchtext = urlparse(cache_m.split()[1]).path.strip('/').split('/')[-1]
+        searchtext = urlparse(cache_m.split()[1].lstrip("<").rstrip(">")).path.strip('/').split('/')[-1]
         qtype = 0
-        objt = api.datasets_list(search = searchtext)[0]
+        objt = api.datasets_list(search = searchtext)
         for item in objt:
-            if item['url']==cache_m.split()[1]:
+            if item['url']==cache_m.split()[1].lstrip("<").rstrip(">"):
                 obj = item
                 break
 
@@ -86,8 +86,8 @@ def data_confirm(channel,msg,user):
         send_direct_response.delay(channel,"<@{}> Recheck the link or maybe session expired".format(user))
         return HttpResponse(status=200)
     send_direct_response.delay(channel,"<@{}> Thanks. I'm on it!".format(user))
-    initial_scrape.delay(qtype,cache_m,obj,user,lvl)
     Confirmation.objects.filter(username = user).delete()
+    initial_scrape.delay(qtype,cache_m,obj,user,lvl)
     return HttpResponse(status=200)
 
 def listit(channel,user):
