@@ -81,13 +81,19 @@ def span_scrapper(nodeaddress,urlname):
 
 @sleep_and_retry
 @limits(calls=1,period=1)
-def api_call_datasets(search_val):
-    return api.datasets_list(search = search_val)[0]
+def api_call_datasets(search_val,url):
+    objt = api.datasets_list(search = search_val)
+    for item in objt:
+        if item['url']==url:
+            return item
 
 @sleep_and_retry
 @limits(calls=1,period=1)
-def api_call_kernels(search_val):
-    return api.kernels_list(search = search_val)[0]
+def api_call_kernels(search_val,url):
+    objt = api.kernels_list(search = search_val)
+    for item in objt:
+        if item['url']==url:
+            return item
 
 @sleep_and_retry
 @limits(calls=1,period=1)
@@ -104,7 +110,7 @@ def task_check():
         mess = ""
         #print(entry.dat_name)
         try:
-            updated_obj = api_call_datasets(urlparse(entry.dat_url).path.strip('/').split('/')[-1])
+            updated_obj = api_call_datasets(urlparse(entry.dat_url).path.strip('/').split('/')[-1], entry.dat_url)
         except:
             continue
         if parser.isoparse(updated_obj['lastUpdated'])!=entry.last_updated:
@@ -122,7 +128,7 @@ def task_check():
         mess = ""
         #print(entry.dat_name)
         try:
-            updated_obj = api_call_datasets(urlparse(entry.dat_url).path.strip('/').split('/')[-1])
+            updated_obj = api_call_datasets(urlparse(entry.dat_url).path.strip('/').split('/')[-1], entry.dat_url)
         except:
             continue
         if parser.isoparse(updated_obj['lastUpdated'])!=entry.last_updated:
@@ -152,7 +158,7 @@ def task_check():
     for entry in Kernels.objects.all():
         mess = ""
         try:
-            updated_obj = api_call_kernels(urlparse(entry.kernel_url).path.strip('/').split('/')[-1])
+            updated_obj = api_call_kernels(urlparse(entry.kernel_url).path.strip('/').split('/')[-1], entry.kernel_url)
         except:
             continue
         if updated_obj.lastRunTime.replace(tzinfo=pytz.UTC)!=entry.last_run:

@@ -28,7 +28,11 @@ def startmonitor(channel,msg,user):
             send_direct_response.delay(channel,"<@{}> I support two types of datamonitor. Please type 'full' if you want me to monitor all kernels, comments and updates to the data OR type 'basic' if you want me to monitor only updates to the data".format(user))
             return HttpResponse(status=200)
         elif 'kernelmonitor' in msg.lower():
-            obj = api.kernels_list(search = searchtext)[0]
+            objt = api.kernels_list(search = searchtext)
+            for item in objt:
+                if item['url']==msg.split()[1]:
+                    obj = item
+                    break
             qtype = 1
         else:
             send_direct_response.delay(channel,"<@{}> I couldn't get you?".format(user))
@@ -61,7 +65,11 @@ def data_confirm(channel,msg,user):
         cache_m = cache_dict[user]
         searchtext = urlparse(cache_m.split()[1]).path.strip('/').split('/')[-1]
         qtype = 0
-        obj = api.datasets_list(search = searchtext)[0]
+        objt = api.datasets_list(search = searchtext)[0]
+        for item in objt:
+            if item['url']==cache_m.split()[1]:
+                obj = item
+                break
 
         if 'basic' in msg.lower():
             lvl = 0
