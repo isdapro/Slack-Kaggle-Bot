@@ -20,19 +20,18 @@ from celery.utils.log import get_task_logger
 from celery import shared_task
 import pytz
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-#from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.options import Options
 from django.utils import timezone
 import dateutil.parser as dparser
 from .others import SectionTemplate
 from .others import ContextTemplate
 from .others import DividerTemplate
 
-options = Options()
-options.add_argument('--headless')
-options.add_argument('--disable-gpu')
-options.add_argument('--hide-scrollbars')
-options.add_argument('--disable-dev-shm-usage')
+chrome_options = Options()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--disable-gpu')
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-dev-shm-usage')
 
 
 logger = get_task_logger(__name__)
@@ -43,7 +42,7 @@ chan_id = config('CHANNEL_ID')
 @sleep_and_retry
 @limits(calls=1,period=5)
 def simple_scrapper(classname,urlname):
-    driver = webdriver.Firefox(executable_path=config('GECKODRIVER_PATH'), firefox_options = options)
+    driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
     driver.implicitly_wait(30)
     driver.set_page_load_timeout(30)
     find_class = driver.find_element_by_class_name
@@ -63,7 +62,7 @@ def simple_scrapper(classname,urlname):
 @sleep_and_retry
 @limits(calls=1,period=5)
 def span_scrapper(nodeaddress,urlname):
-    driver = webdriver.Firefox(executable_path=config('GECKODRIVER_PATH'), firefox_options = options)
+    driver = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'), chrome_options = chrome_options)
     driver.implicitly_wait(30)
     driver.set_page_load_timeout(30)
     find_class = driver.find_element_by_class_name
