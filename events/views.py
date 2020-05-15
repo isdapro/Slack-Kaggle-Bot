@@ -13,18 +13,20 @@ from urllib.parse import urlparse
 from .tasks import *
 from django.utils import timezone
 from .others import BotTextGenerator
+from .models import Confirmation
 
-cache_dict = dict()
+
 bottext = json.dumps(BotTextGenerator())
 
 def startmonitor(channel,msg,user):
     try:
         searchtext = urlparse(msg.split()[1]).path.strip('/').split('/')[-1]
         if 'datamonitor' in msg.lower():
-            if user in cache_dict.keys():
+            if Confirmation.objects.filter(username = user).exists():
                 send_direct_response.delay(channel,"<@{}> I guess you haven't responded to a previous confirmation prompt. Could you please do that?".format(user))
                 return HttpResponse(status=200)
-            cache_dict[user] = msg
+            c = Confirmation(username = user, mess = msg)
+            c.save()
             send_direct_response.delay(channel,"<@{}> I support two types of datamonitor. Please type 'full' if you want me to monitor all kernels, comments and updates to the data OR type 'basic' if you want me to monitor only updates to the data".format(user))
             return HttpResponse(status=200)
         elif 'kernelmonitor' in msg.lower():
@@ -62,7 +64,7 @@ def stopmonitor(channel,msg,user):
 
 def data_confirm(channel,msg,user):
     try:
-        cache_m = cache_dict[user]
+        cache_m = Confirmation.objects.filter(username = user).values_list('mess', flat=True)[0]
         searchtext = urlparse(cache_m.split()[1]).path.strip('/').split('/')[-1]
         qtype = 0
         objt = api.datasets_list(search = searchtext)[0]
@@ -79,13 +81,13 @@ def data_confirm(channel,msg,user):
             send_direct_response.delay(channel,"<@{}> Please enter a valid response".format(user))
             return HttpResponse(status=200)
     except:
-        if user in cache_dict.keys():
-            del cache_dict[user]
+        if Confirmation.objects.filter(username = user).exists():
+            Confirmation.objects.filter(username = user).delete()
         send_direct_response.delay(channel,"<@{}> Recheck the link or maybe session expired".format(user))
         return HttpResponse(status=200)
     send_direct_response.delay(channel,"<@{}> Thanks. I'm on it!".format(user))
     initial_scrape.delay(qtype,cache_m,obj,user,lvl)
-    del cache_dict[user]
+    Confirmation.objects.filter(username = user).delete()
     return HttpResponse(status=200)
 
 def listit(channel,user):

@@ -37,3 +37,7 @@ class Kernels(models.Model):
 
     def __str__(self):
         return self.kernel_name
+
+class Confirmation(models.Model):
+    username = models.CharField(max_length=400)
+    mess = models.CharField(max_length = 500)
